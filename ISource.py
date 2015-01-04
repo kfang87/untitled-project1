@@ -1,7 +1,7 @@
 import abc
 
 
-class SourceBase(object):
+class ISource(object):
     __metaclass__ = abc.ABCMeta
     
     #given a URI, gets the raw returned value from the source
