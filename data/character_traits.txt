@@ -1,0 +1,8 @@
+introverted
+extroverted
+intuitive
+sensitive
+rational
+emotional
+spontaneous
+planful
