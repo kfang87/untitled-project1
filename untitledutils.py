@@ -2,11 +2,13 @@ import logging
 import os
 import ConfigParser
 import sys
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from requests import get
 
 
-
-
-def create_entity_document(entityname, content):
+########################## Sourcing utilities ##########################
+def create_person_document(entityname, content):
     logger = logging.getLogger('UntitledLogger.SourceUtilities')
     
     DOCUMENT_FILEPATH = config.get('Sourcing','DOCUMENT_FILEPATH')
@@ -14,9 +16,8 @@ def create_entity_document(entityname, content):
     filepath = os.path.join(DOCUMENT_FILEPATH, filename)
     
     try:
-        filesize = os.path.getsize(filepath)
-        if (os.path.isfile(filepath) and filesize > 0):
-            logger.warning('File already exists at %s with size %s, skipping file creation', filepath, filesize)
+        if (os.path.isfile(filepath) and os.path.getsize(filepath) > 0):
+            logger.info('File already exists at %s, skipping file creation', filepath)
         else:
             with open(filepath,'w') as f:
                 f.write(content)
@@ -25,17 +26,48 @@ def create_entity_document(entityname, content):
         logger.error('Could not complete creating file for filepath %s, %s',filename,sys.exc_info()[0])
     
     return filepath
+
+
+########################## Name Term Frequency utilities ##########################
     
-    
-# Initializing Logger
+#given a set of documents, create a matrix that represents the importance of a term within a document
+def create_doc_term_importance(docs):
+    logger.info('Beginning Document-Term frequency analysis')
+    countvectorizer = CountVectorizer(input='filename', stop_words='english', encoding='ascii',decode_error='replace',analyzer='word',token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z]+\b")
+    countvectorizer.fit(docs)
+    wordcount_matrix = countvectorizer.transform(docs)
+
+    # # Construct tfidf values sparse matrix of [documents, vocabulary]
+    tfidf_transformer = TfidfTransformer(smooth_idf=True).fit(wordcount_matrix)
+    tfidf_matrix = tfidf_transformer.transform(wordcount_matrix)
+    logger.info('Finished creating tdidf matrix')
+    return tfidf_matrix, countvectorizer.vocabulary_
+
+########################### Initializing ##########################
+def calculate_word_similarity(word1, word2):
+    try:
+        sss_url = "http://swoogle.umbc.edu/SimService/GetSimilarity"
+        return float(get(sss_url, params={'operation':'api','phrase1':word1,'phrase2':word2}).text.strip())
+    except:
+        return 0.0
+########################### Initializing ##########################
+
+# Initialize Config
+
+config = ConfigParser.ConfigParser()
+config.read('config.ini')
+
+# Initialize Logger
+LOGGER_FILEPATH = config.get('Logging','LOGGER_FILEPATH')
+LOGGER_DEBUG_FILEPATH = config.get('Logging','LOGGER_DEBUG_FILEPATH')
 
 logger = logging.getLogger('UntitledLogger')
 logger.setLevel(logging.DEBUG)
 
-fh = logging.FileHandler('C:\Logs\UntitledProject\UntitledProject.log')
+fh = logging.FileHandler(LOGGER_FILEPATH)
 fh.setLevel(logging.WARNING)
 
-debugfh = logging.FileHandler('C:\Logs\UntitledProject\UntitledProject-DEBUG.log')
+debugfh = logging.FileHandler(LOGGER_DEBUG_FILEPATH)
 debugfh.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -46,8 +78,3 @@ logger.addHandler(fh)
 logger.addHandler(debugfh)
 
 logger.info('Logging Started.')
-
-# Initialize Config
-
-config = ConfigParser.ConfigParser()
-config.read('config.ini')

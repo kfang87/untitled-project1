@@ -1,71 +1,78 @@
 from SourceWikipedia import SourceWikipedia
 import untitledutils
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.naive_bayes import MultinomialNB
+import scipy.sparse
+from nameparser import HumanName
 
 source = SourceWikipedia()
-entities = source.retrieve_sourcelist('Greek_gods', 10)
+entities = source.retrieve_sourcelist('List_of_female_scientists_before_the_21st_century', 5)
 
 documents = []
 
-for pageid in entities:
-    data = source.retrieve_data_from_source(pageid)
-    entity, context = source.extract_relevant_context(data)
-    filename = untitledutils.create_entity_document(entity, context)
-    documents.append(filename)
+document_entities_dict = {}
 
-# Construct brute count sparse matrix of [documents, vocabulary]
-countvectorizer = CountVectorizer(input='filename', stop_words='english')
-countvectorizer.fit(documents)
-wordcount_matrix = countvectorizer.transform(documents)
+# for pageid in entities:
+#     data = source.retrieve_data_from_source(pageid)
+#     entity, context, uri = source.extract_relevant_context(data)
+#     filename = untitledutils.create_person_document(entity, context)
+#     personal_name = HumanName(entity)
+#     document_entities_dict[filename] = entity
+#     documents.append(filename)
 
-# # Construct tfidf values sparse matrix of [documents, vocabulary]
-tfidf_transformer = TfidfTransformer(smooth_idf=True).fit(wordcount_matrix)
-tfidf_matrix = tfidf_transformer.transform(wordcount_matrix)
+for title in entities:
+    data = source.retrieve_data_from_source(title)
+    entity, context, uri = source.extract_relevant_context(data)
+    if (context):
+        filename = untitledutils.create_person_document(entity, context)
+        personal_name = HumanName(entity)
+        document_entities_dict[filename] = entity
+        documents.append(filename)
 
-print tfidf_matrix.getrow(0).todense().tolist()[0][0]
+docterm_matrix, vocabulary_dict = untitledutils.create_doc_term_importance(documents)
+docterm_matrix_dict = scipy.sparse.dok_matrix(docterm_matrix)
+
+# TODO: build PERSON
+for entity in document_entities_dict.itervalues():
+    print 'Person: ' + entity
+
+# TODO: build DESCRIPTOR
+for word in vocabulary_dict.iterkeys():
+    print 'Descriptor: ' + word
+
+# TODO: build CHARACTER TRAIT
+characteristics_file = open('C:\code\untitled-project1\data\character_traits.txt')
+characteristics_file.readline()
+characteristics_array = characteristics_file.read().split('\n')
+characteristics_file.close()
+
+for char in characteristics_array:
+    print 'Character Trait: ' + char
+
+# TODO: build NAME
+for entity in document_entities_dict.itervalues():
+    print 'Name: ' + HumanName(entity).first
+
+# TODO: build relationships between PERSON and NAME
+person_name_dict = {}
+for entity in document_entities_dict.itervalues():
+    print 'The entity ' + entity + ' has a name of ' + HumanName(entity).first
+
+# TODO: build relationships between PERSON and DESCRIPTOR
+for item in vocabulary_dict.iterkeys():
+    index_of_word =  vocabulary_dict[item]
+    word_docmatrix = docterm_matrix_dict.getcol(index_of_word)
+    for doc_index in range(0,documents.__len__()-1):
+        docname = documents[doc_index]
+        word = str(item.encode('utf-8'))
+        affinity_matrix = word_docmatrix.getrow(doc_index).values()
+        if affinity_matrix.__len__() > 0:
+            affinity = str(affinity_matrix[0])
+            print document_entities_dict[docname] + ' can be described as ' + word + ' with the confidence of ' + affinity
 
 
-
-
-
-
-
-
-
-
-
-
-
-# list2 = ['I hate the world', 'hello world my name is kayla']
-# count_vect = CountVectorizer()
-# X_train_counts2 = count_vect.fit_transform(list2)
-
-# tfidf_transformer = TfidfTransformer()
-# X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts2)
-
-# clf = MultinomialNB().fit(X_train_tfidf, twenty_train.target)
-
-# docs_new = ['hate is love', 'kayla has a world']
-# X_new_counts = count_vect.transform(docs_new)
-# X_new_tfidf = tfidf_transformer.transform(X_new_counts)
-
-# predicted = clf.predict(X_new_tfidf)
-
-# for doc, category in zip(docs_new, predicted):
-    # print doc + ':' + cateogry
-
-# print X_train_counts
-# with open('data.txt','w') as outfile:
-    # outfile.write('one:' + str(X_train_counts))
-# print X_train_counts2
-# with open('data2.txt','w') as outfile2:
-    # outfile2.write('two:' + str(X_train_counts2))
-    
-# print X_train_counts.shape
-# print X_train_counts
-
-# with open('data2.txt','w') as outfile2:
-    # outfile2.write('two:' + str(count_vect.vocabulary_))
-# print count_vect.vocabulary_
+# TODO: build relationships between DESCRIPTOR and CHARACTER TRAIT
+for char in characteristics_array:
+    for word in vocabulary_dict:
+        result = untitledutils.calculate_word_similarity(word, char)
+        if (result > 0.01):
+            #place holder for inserting into Neo4J
+            print ('The similarity between ' + word + ' and ' + char + ' is ' + str(result)).encode('utf8')
