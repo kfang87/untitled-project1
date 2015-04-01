@@ -51,9 +51,7 @@ def get_first_name(fullname):
 
 def get_name_from_docname(docname):
     docname = ntpath.basename(docname)
-    logger.info("Retreiving name for document " + docname)
     name = HumanName(docname[0:docname.index("_")].replace("-"," ").decode(encoding='utf-8',errors='ignore')).first.capitalize()
-    logger.info("Name is " + name)
     return name
 
 def create_entity_identifier(fullname,source):
@@ -73,7 +71,7 @@ def calculate_word_similarity(word1, word2):
 def get_documents():
     documents = []
     dir = "C:\Temp\UntitledProject-Workspace\EntityDocuments"
-    for file in listdir(dir):
+    for file in listdir(unicode(dir,'utf-8')):
         documents.append(dir + "\\" + file)
     return documents
 
@@ -81,12 +79,10 @@ def get_documents():
 def create_doc_term_importance(docs, vocabulary):
     countvectorizer = CountVectorizer(input='filename', stop_words='english', encoding='ascii',decode_error='replace',analyzer='word',token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z]+\b",vocabulary=vocabulary)
     wordcount_matrix = countvectorizer.fit_transform(docs)
-    # # Construct tfidf values sparse matrix of [documents, vocabulary]
     tfidf_transformer = TfidfTransformer(smooth_idf=True).fit(wordcount_matrix)
     tfidf_matrix = tfidf_transformer.transform(wordcount_matrix)
 
-    docterm_matrix_dict = scipy.sparse.dok_matrix(tfidf_matrix)
-    return docterm_matrix_dict, countvectorizer.vocabulary_
+    return scipy.sparse.coo_matrix(tfidf_matrix), countvectorizer.get_feature_names()
 
 def get_adj_vocabulary(docs):
     logger.info("Starting to build vocabulary with documents")
@@ -103,7 +99,7 @@ def get_adj_vocabulary(docs):
             for (word,tag) in pos:
                 if tag == "JJ" and not vocabulary.__contains__(word):
                     vocabulary.add(word)
-                    with open('vocabulary.txt','a') as f:
+                    with open('data\\vocabulary.txt','a') as f:
                         f.write(word + "\n")
                     processor_count += 1
                     if processor_count % 25 == 0:
@@ -115,7 +111,7 @@ def get_adj_vocabulary(docs):
 
 def load_vocabulary():
     vocabulary_set = set()
-    with open('vocabulary.txt','r') as f:
+    with open('data\\vocabulary.txt','r') as f:
         vocabulary_set.add(f.readline())
 
 ########################### Initializing ##########################
