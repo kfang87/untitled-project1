@@ -2,17 +2,20 @@ import logging
 import os
 import ConfigParser
 import sys
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
-from requests import get
-import nltk
-import dbutils
-from nameparser import HumanName
 import string
 from HTMLParser import HTMLParser
 import ntpath
 from os import listdir
+
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
+from requests import get
+import nltk
+from nameparser import HumanName
 import scipy.sparse
+
+import dbutils
+
 
 ########################## Sourcing utilities ##########################
 def create_person_document(graph, person_name, context, source_text):

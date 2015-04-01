@@ -1,6 +1,6 @@
 import untitledutils
 import dbutils
-from SourceSparknotes import SourceSparknotes
+import SourceSparknotes
 
 getdocs = False
 build_database = True

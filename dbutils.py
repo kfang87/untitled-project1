@@ -1,7 +1,10 @@
-from py2neo import Graph, Node, Relationship
 import logging
-import untitledutils
 import ConfigParser
+
+from py2neo import Graph, Relationship
+
+import untitledutils
+
 
 # Graph functions
 
