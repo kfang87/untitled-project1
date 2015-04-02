@@ -2,9 +2,10 @@
 
 import logging
 import ConfigParser
-from py2neo import Graph, Relationship
+from py2neo import Graph, Relationship, Node
 import untitledutils
 import ntpath
+import os
 
 create_names = False
 create_descriptors = False
@@ -110,13 +111,50 @@ def RelateDescriptorSimilartytoTrait(graph, descriptor_word_identifier, trait_wo
     except:
         logger.warning("Problem with creating relationship between %s and %s",descriptor_word_identifier, trait_word)
 
-def MergePeople(source_person_identifier, target_person_identifier, new_person_identifier, target_person_fullname, target_person_source_text):
-    # add text from source to target, delete source file
-    # rename file using new_person_identifier
-    # update the node attributes from source to target
-    # delete source node
-    print 'TODO'
-    
+def MergePersonNodes(source_person_identifier, target_person_identifier,new_person_identifier, new_person_fullname, new_person_source_text):
+    # if t and n are the same, or if n doesn't exist, update everything form s to t, delete s
+    # if n exists and is not the same as t, fail
+    graph = Graph()
+
+    s_person = graph.find_one("Person","identifier",source_person_identifier)
+    t_person = graph.find_one("Person","identifier",target_person_identifier)
+    n_person = graph.find_one("Person","identifier",new_person_identifier)
+
+    if (not s_person or not t_person):
+        logger.warning("Could not find required nodes using source person_identifier = %s and target person_identifier = %s", source_person_identifier, target_person_identifier)
+        return
+    elif (n_person and t_person != n_person):
+        logger.warning("New node identifier already in use: %s",n_person)
+        return
+    elif (t_person == n_person or not n_person):
+        r_list = graph.match_one(start_node=s_person)
+        if (r_list):
+            for r in r_list:
+                new_r = Relationship(t_person, r.type, r.end_node)
+                graph.create_unique(new_r)
+                new_r.push()
+                t_person.properties["identifier"] = new_person_identifier
+                t_person.properties["full_name"] = new_person_fullname
+                t_person.properties["source"] = new_person_source_text
+                t_person.push()
+                RemoveNode(graph,s_person)
+    else:
+        logger.warning("Invalid source, target or new Person nodes for merge. Source %s, Target %s, New %s",str(s_person), str(t_person), str(new_person_identifier))
+
+def RemoveNode(graph,node):
+    if (node):
+        graph.delete(graph.match_one(start_node=node,bidirectional=True))
+        node.delete()
+        graph.push()
+        logger.info("Successfully deleted relationships and node for Node: %s",node)
+    else:
+        logger.warning("Could not delete node as it did not exist.")
+
+def RemovePerson(person_identifier):
+    graph = getGraph()
+    person_node = graph.find_one("Person", "identifier", person_identifier)
+    RemoveNode(graph,person_node)
+
 def update_database():
     documents = untitledutils.get_documents()
     graph = getGraph()

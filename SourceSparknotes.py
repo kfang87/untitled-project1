@@ -43,8 +43,8 @@ class SourceSparknotes(object):
     
     def retrieve_sourcelist(self):
         urls = []
-        #letters = ['h']
-        letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+        letters = ['h']
+        #letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
         for letter in letters:
             url = 'http://www.sparknotes.com/lit/index_' + letter + '.html'
             try:
@@ -74,6 +74,5 @@ class SourceSparknotes(object):
                 person_name, context = self.extract_relevant_context(character_chunk)
                 filename = untitledutils.create_person_document(graph, person_name, context, source_text)
                 documents.append(filename)
-        return documents
             
 ISource.register(SourceSparknotes)

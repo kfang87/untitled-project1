@@ -75,6 +75,36 @@ def get_documents():
         documents.append(dir + "\\" + file)
     return documents
 
+def delete_person(person_identifier):
+    entities_folder = 'C:\Temp\UntitledProject-Workspace\EntityDocuments'
+    filepath = os.path.join(entities_folder,person_identifier + ".txt").decode('utf-8')
+    if os.path.exists(filepath):
+        os.remove(filepath)
+    dbutils.RemovePerson(person_identifier)
+
+def merge_persons(source_person_identifier, target_person_identifier, new_person_identifier, new_person_fullname, new_person_source_text):
+    # add text from source to target, delete source file
+    entities_folder = 'C:\Temp\UntitledProject-Workspace\EntityDocuments'
+    source_file = os.path.join(entities_folder,source_person_identifier + ".txt").decode('utf-8')
+    target_file = os.path.join(entities_folder,target_person_identifier + ".txt").decode('utf-8')
+    new_file = os.path.join(entities_folder,new_person_identifier + ".txt")
+
+    if (os.path.exists(source_file) and os.path.exists(target_file)):
+        with open(target_file,'a') as t:
+            with open (source_file, 'r') as s:
+                t.write(s.read().decode(encoding='utf-8',errors='ignore') + '\n')
+        os.remove(source_file)
+
+    # rename file using new_person_identifier
+    if target_file != new_file and not os.path.exists(new_file):
+        os.rename(target_file,new_file)
+    elif target_file == new_file:
+        logger.debug('No need to rename file to target.')
+    elif os.path.exists(new_file):
+        logger.warning("Cannot merge into existing file at %s", new_file)
+    # update the node attributes from source to target, delete source node
+    dbutils.MergePersonNodes(source_person_identifier,target_person_identifier,new_person_identifier, new_person_fullname, new_person_source_text)
+
 
 def create_doc_term_importance(docs, vocabulary):
     countvectorizer = CountVectorizer(input='filename', stop_words='english', encoding='ascii',decode_error='replace',analyzer='word',token_pattern=r"(?u)\b[a-zA-Z][a-zA-Z]+\b",vocabulary=vocabulary)

@@ -3,21 +3,28 @@ import untitledutils
 import ntpath
 import scipy.sparse
 import itertools
+import dbutils
+from py2neo import Graph
 
-documents = untitledutils.get_documents()
-# Get all words from file
-vocabulary =  untitledutils.load_vocabulary()
-docterm_matrix, vocabulary_dict = untitledutils.create_doc_term_importance(documents, vocabulary)
+graph = Graph()
+# dbutils.MergePersonNodes(graph,"harry-potter_harry-potter-and-the-chamber-of-secrets","harry-potter_harry-potter-and-the-prisoner-of-azkaban","harry_potter","Harry Potter","Harry Potter series")
+#dbutils.MergePersonNodes(graph,"harry-potter_harry-potter-and-the-deathly-hallows","harry_potter","harry_potter","Harry Potter","Harry Potter series")
+dbutils.MergePersonNodes(graph,"harry-potter_harry-potter-and-the-halfblood-prince","harry_potter","harry_potter","Harry Potter","Harry Potter series")
 
-index = 0
-for i,j,v in zip(docterm_matrix.row, docterm_matrix.col, docterm_matrix.data):
-    person_identifier = ntpath.basename(documents[i]).replace(".txt","")
-    word = str(vocabulary_dict[j]).encode('utf-8')
-    affinity = v
-    if (affinity > 0.01):
-        affinity = str(affinity)
-        word_identifier = word + "-JJ-1"
-        RelatePersonDescribedbyDescriptor(graph,person_identifier,word_identifier,affinity)
+# documents = untitledutils.get_documents()
+# # Get all words from file
+# vocabulary =  untitledutils.load_vocabulary()
+# docterm_matrix, vocabulary_dict = untitledutils.create_doc_term_importance(documents, vocabulary)
+#
+# index = 0
+# for i,j,v in zip(docterm_matrix.row, docterm_matrix.col, docterm_matrix.data):
+#     person_identifier = ntpath.basename(documents[i]).replace(".txt","")
+#     word = str(vocabulary_dict[j]).encode('utf-8')
+#     affinity = v
+#     if (affinity > 0.01):
+#         affinity = str(affinity)
+#         word_identifier = word + "-JJ-1"
+#         RelatePersonDescribedbyDescriptor(graph,person_identifier,word_identifier,affinity)
 
 
 #
