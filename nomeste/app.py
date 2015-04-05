@@ -1,8 +1,18 @@
-from py2neo import Graph
-from flask import json
+__author__ = 'Kayla'
+from flask import Flask
+from flask import json, jsonify
+from py2neo import Graph, Node
 
+app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return 'Welcome to Nomeste.'
+
+# For a name, return most popular traits via the people they are associated with
+
+@app.route('/nomeste/api/<base_name>', methods=['GET'])
 def display_name_results(base_name):
-
     graph = Graph()
     person_dict = {}
 
@@ -31,14 +41,26 @@ def display_name_results(base_name):
         if person_dict.has_key(person_identifier):
             person_value = person_dict[person_identifier]
             trait_dict = person_value["traits"]
-            trait_dict[trait] = rating
+            trait_dict[trait] = round(rating,2)
             person_value["traits"] = trait_dict
         else: #initialize personal and traits dictionary
             person_value["personal"] = {"full_name": person_full_name, "source" : person_source }
-            person_value["traits"] = {trait: rating}
+            person_value["traits"] = {trait: round(rating,2)}
 
         person_dict[person_identifier] = person_value
 
-    print person_dict
+    encoder = json.JSONEncoder()
+    return jsonify(person_dict)
 
-display_name_results("Jane")
+@app.route('/nomeste/api/<trait_word>')
+def display_trait_results(trait_word):
+    graph = Graph()
+    results = []
+
+    query = "".format()
+
+    encoder = json.JSONEncoder()
+    return encoder.encode(results)
+
+if __name__ == '__main__':
+    app.run(debug=True)

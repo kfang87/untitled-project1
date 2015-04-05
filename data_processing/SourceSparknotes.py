@@ -5,7 +5,6 @@ import urllib2
 from BeautifulSoup import BeautifulSoup
 
 from ISource import ISource
-import untitledutils
 import dbutils
 
 
@@ -41,10 +40,12 @@ class SourceSparknotes(object):
         self.logger.info("Retrieved content for person %s.", person_name)
         return person_name, context
     
-    def retrieve_sourcelist(self):
-        urls = []
-        letters = ['h']
-        #letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+    def calculate_sourcelist(self):
+        #letters = ['h']
+        letters = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z']
+
+        urls_count = 0
+
         for letter in letters:
             url = 'http://www.sparknotes.com/lit/index_' + letter + '.html'
             try:
@@ -54,25 +55,32 @@ class SourceSparknotes(object):
                 for entry in entrylist:
                     entry_soup = BeautifulSoup(str(entry))
                     if (len(entry_soup.p.a['href']) > 0):
-                        urls.append(entry_soup.p.a['href'])
+                        urls_count += 1
+                        with open('..\\data\\urls.txt', 'a') as f:
+                            f.write(entry_soup.p.a['href'] + "\n")
             except:
                 self.logger.warning("Could not open url %s", url)
-            self.logger.info('Finished retrieving list of urls. List contains %s entries, starting with %s', str(len(urls)), str(urls[0]))
-        return urls
+            self.logger.info('Finished retrieving list of urls.')
 
+    def get_sourcelist(self):
+        urls = []
+        with open('..\\data\\urls.txt', 'r') as f:
+            urls = f.read().splitlines()
+        return urls
 
     def __init__(self):
         self.logger = logging.getLogger('UntitledLogger.SourceLogger')
         documents = []
-        url_list = self.retrieve_sourcelist()
         graph = dbutils.getGraph()
 
-        #url_list = ['http://www.sparknotes.com/lit/potter7/']
+        # self.calculate_sourcelist()
+        url_list = self.get_sourcelist()
+
         for url in url_list:
             character_chunk_list, source_text = self.retrieve_data_from_source(str(url))
             for character_chunk in character_chunk_list:
                 person_name, context = self.extract_relevant_context(character_chunk)
-                filename = untitledutils.create_person_document(graph, person_name, context, source_text)
+                filename = dbutils.create_person_document(graph, person_name, context, source_text)
                 documents.append(filename)
             
 ISource.register(SourceSparknotes)
