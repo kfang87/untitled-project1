@@ -1,17 +1,23 @@
 __author__ = 'Kayla'
-from flask import Flask
-from flask import json, jsonify
+from flask import Flask, redirect, url_for, request, render_template
+from flask import  jsonify
 from py2neo import Graph, Node
 
 app = Flask(__name__)
 
-@app.route('/')
+@app.route('/', methods =['POST','GET'])
 def index():
-    return 'Welcome to Nomeste.'
+    if request.method == 'POST':
+        if(request.form['name']):
+            return redirect(url_for('display_name_results',base_name=request.form['name']))
+        elif(request.form['trait']):
+            return redirect(url_for('display_trait_results',trait_word=request.form['trait']))
+    else:
+        return render_template('index.html')
 
 # For a name, return most popular traits via the people they are associated with
 
-@app.route('/nomeste/api/<base_name>', methods=['GET'])
+@app.route('/epnomus/api/name/<base_name>', methods=['GET'])
 def display_name_results(base_name):
     graph = Graph()
     person_dict = {}
@@ -49,18 +55,32 @@ def display_name_results(base_name):
 
         person_dict[person_identifier] = person_value
 
-    encoder = json.JSONEncoder()
     return jsonify(person_dict)
 
-@app.route('/nomeste/api/<trait_word>')
+@app.route('/epnomus/api/trait/<trait_word>')
 def display_trait_results(trait_word):
     graph = Graph()
-    results = []
+    person_dict = {}
 
-    query = "".format()
+    query = "MATCH (n:Name) -[r]- (p:Person) - [r2] - (d:Descriptor) -[r3]- (t:Trait {{word:'{}'}}) " \
+            "return p.identifier as person_identifier, " \
+            "p.full_name as person_full_name, " \
+            "p.source as person_source, " \
+            "sum( toFloat(r2.confidence) * toFloat(r3.similarity))as rating " \
+            "ORDER BY rating DESC " \
+            "LIMIT 50".format(trait_word.lower())
 
-    encoder = json.JSONEncoder()
-    return encoder.encode(results)
+    records = graph.cypher.execute(query)
+
+    for r in records:
+        person_identifier = r["person_identifier"]
+        person_full_name = r["person_full_name"]
+        person_source = r["person_source"]
+        rating = r["rating"]
+        person_dict[person_identifier]  = {"full_name" : person_full_name,
+                     "source" : person_source,
+                     "rating" : rating}
+    return jsonify(person_dict)
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import ConfigParser
 import ntpath
 from py2neo import Graph, Relationship
-from py2neo.cypher import cypher_escape
 from data_processing import procutils
 import os
 import sys
+import ConfigParser
+
+config = ConfigParser.ConfigParser()
+config.read('config.ini')
 
 create_names = True
 create_descriptors = True
@@ -30,7 +32,7 @@ def ConfigureGraph(graph):
         graph.schema.create_uniqueness_constraint("Characteristic", "word")
     if (graph.schema.get_uniqueness_constraints("Name").__len__() == 0):
         graph.schema.create_uniqueness_constraint("Name", "base_name")
-    logger.info("Graph successfully configured with appropriate indexes")
+    logging.info("Graph successfully configured with appropriate indexes")
 
 # Node functions
 
@@ -40,9 +42,9 @@ def CreatePerson(graph, identifier, fullname, source_text):
         person.properties["full_name"] = fullname
         person.properties["source"] = source_text
         person.push()
-        logger.info("Person node created successfully for %s.",identifier)
+        logging.info("Person node created successfully for %s.",identifier)
     except:
-        logger.warning("Problem with creating person %s",identifier)
+        logging.warning("Problem with creating person %s",identifier)
     return person
 
 def CreateDescriptor(graph, word):
@@ -55,27 +57,27 @@ def CreateDescriptor(graph, word):
         descriptor["pos"] = pos
         descriptor["mlbl"] = mlbl
         descriptor.push()
-        logger.info("Descriptor node created successfully for %ss.",desciptor_meaning_identifier)
+        logging.info("Descriptor node created successfully for %ss.",desciptor_meaning_identifier)
     except:
-        logger.warning("Problem with creating descriptor %s", word)
+        logging.warning("Problem with creating descriptor %s", word)
     return descriptor
 
 def CreateCharacterTrait(graph, word):
     try:
         trait = graph.merge_one("Trait", "word", word.lower())
         trait.push()
-        logger.info("Trait node created successfully for %ss.",word)
+        logging.info("Trait node created successfully for %ss.",word)
     except:
-        logger.warning("Problem with creating trait %s",word)
+        logging.warning("Problem with creating trait %s",word)
     return trait
 
 def CreateName(graph, firstname):
     try:
         name = graph.merge_one("Name","base_name",firstname)
         name.push()
-        logger.info("Name node created successfully for %s.",firstname)
+        logging.info("Name node created successfully for %s.",firstname)
     except:
-        logger.warning("Problem with creating name for %s",firstname)
+        logging.warning("Problem with creating name for %s",firstname)
     return firstname
 
 # Relationship functions
@@ -87,9 +89,9 @@ def RelatePersonHasName(graph, person_identifier, base_name):
         r = Relationship(person, "HAS_NAME", name)
         graph.create_unique(r)
         r.push()
-        logger.info("Relationship HAS_NAME created between %s and %s",person_identifier, base_name)
+        logging.info("Relationship HAS_NAME created between %s and %s",person_identifier, base_name)
     except:
-        logger.warning("Problem with creating relationship between %s and %s",person_identifier, base_name)
+        logging.warning("Problem with creating relationship between %s and %s",person_identifier, base_name)
 
 def RelatePersonDescribedbyDescriptor(graph, person_identifier, descriptor_word_identifier, confidence_pct):
     try:
@@ -98,9 +100,9 @@ def RelatePersonDescribedbyDescriptor(graph, person_identifier, descriptor_word_
         r = Relationship(person, "DESCRIBED_BY", descriptor, confidence=confidence_pct)
         graph.create_unique(r)
         r.push()
-        logger.info("Relationship DESCRIBED_BY created between %s and %s",person_identifier, descriptor_word_identifier)
+        logging.info("Relationship DESCRIBED_BY created between %s and %s",person_identifier, descriptor_word_identifier)
     except:
-        logger.warning("Problem with creating relationship between %s and %s",person_identifier, descriptor_word_identifier)
+        logging.warning("Problem with creating relationship between %s and %s",person_identifier, descriptor_word_identifier)
 
 def RelateDescriptorSimilartytoTrait(graph, descriptor_word, trait_word, similarity_pct):
     descriptor_word_identifier = descriptor_word.lower() + "-JJ-1"
@@ -110,9 +112,9 @@ def RelateDescriptorSimilartytoTrait(graph, descriptor_word, trait_word, similar
         r = Relationship(descriptor, "IS_SIMILAR_TO", trait, similarity=similarity_pct )
         graph.create_unique(r)
         r.push()
-        logger.info("Relationship IS_SIMILAR_TO created between %s and %s",descriptor_word_identifier, trait_word)
+        logging.info("Relationship IS_SIMILAR_TO created between %s and %s",descriptor_word_identifier, trait_word)
     except:
-        logger.warning("Problem with creating relationship between %s and %s",descriptor_word_identifier, trait_word)
+        logging.warning("Problem with creating relationship between %s and %s",descriptor_word_identifier, trait_word)
 
 def MergePersonNodes(source_person_identifier, target_person_identifier, new_person_fullname, new_person_source_text):
     # if t and n are the same, or if n doesn't exist, update everything form s to t, delete s
@@ -126,7 +128,7 @@ def MergePersonNodes(source_person_identifier, target_person_identifier, new_per
         # if Target doesn't exist, create it
         if (not t_person):
             t_person = CreatePerson(graph, target_person_identifier, new_person_fullname, new_person_source_text)
-        r_list = graph.match_one(start_node=s_person)
+        r_list = graph.match(start_node=s_person,bidirectional=True)
         if (r_list):
             for r in r_list:
                 new_r = Relationship(t_person, r.type, r.end_node)
@@ -137,17 +139,21 @@ def MergePersonNodes(source_person_identifier, target_person_identifier, new_per
         t_person.push()
         RemoveNode(graph,s_person)
     if (not s_person):
-        logger.warning("Could not find required nodes using source person_identifier = %s", source_person_identifier)
+        logging.warning("Could not find required nodes using source person_identifier = %s", source_person_identifier)
         return
 
 def RemoveNode(graph,node):
     if (node):
-        graph.delete(graph.match_one(start_node=node,bidirectional=True))
-        node.delete()
-        graph.push()
-        logger.info("Successfully deleted relationships and node for Node: %s",node)
+        try:
+            for r in graph.match(start_node=node,bidirectional=True):
+                graph.delete(r)
+            node.delete()
+            graph.push()
+            logging.info("Successfully deleted relationships and node for Node: %s",node)
+        except:
+            logging.warning("Could not delete node %s with error %s", node, sys.exc_info())
     else:
-        logger.warning("Could not delete node as it did not exist.")
+        logging.warning("Could not delete node as it did not exist.")
 
 def RemovePerson(person_identifier):
     graph = getGraph()
@@ -172,7 +178,7 @@ def update_database():
         for word in vocabulary_dict:
             CreateDescriptor(graph,word)
     if (create_traits):
-        with open('C:\code\untitled-project1\data\character_traits.txt') as f:
+        with open(config.get('data','TRAIT_FILEPATH')) as f:
             characteristics_array = f.read().splitlines()
         for char in characteristics_array:
             CreateCharacterTrait(graph,char)
@@ -181,7 +187,7 @@ def update_database():
             RelatePersonHasName(graph, ntpath.basename(doc).replace(".txt",""),  procutils.get_name_from_docname(doc))
 
     if (create_descriptor_trait):
-        with open('C:\code\untitled-project1\data\character_traits.txt') as f:
+        with open(config.get('data','TRAIT_FILEPATH')) as f:
             characteristics_array = f.read().splitlines()
         for char in characteristics_array:
             for word in vocabulary_dict:
@@ -208,42 +214,14 @@ def create_person_document(graph, person_name, context, source_text):
 
     try:
         if (os.path.isfile(filepath) and os.path.getsize(filepath) > 0):
-            logger.info('File already exists at %s, skipping file creation', filepath)
+            logging.info('File already exists at %s, skipping file creation', filepath)
         else:
             with open(filepath,'w') as f:
                 f.write(context)
-            logger.info('Creating context file %s for entity %s', filepath, person_name)
+            logging.info('Creating context file %s for entity %s', filepath, person_name)
             #add to database
         CreatePerson(graph,entity_identifier, person_name,source_text)
     except:
-        logger.error('Could not complete creating file for filepath %s, %s',filename,sys.exc_info()[0])
+        logging.error('Could not complete creating file for filepath %s, %s',filename,sys.exc_info()[0])
 
     return filepath
-########################### Initializing ##########################
-
-# Initialize Config
-
-config = ConfigParser.ConfigParser()
-config.read('config.ini')
-
-# Initialize Logger
-LOGGER_FILEPATH = config.get('Logging','LOGGER_FILEPATH')
-LOGGER_DEBUG_FILEPATH = config.get('Logging','LOGGER_DEBUG_FILEPATH')
-
-logger = logging.getLogger('UntitledLogger.DBUtils')
-logger.setLevel(logging.DEBUG)
-
-fh = logging.FileHandler(LOGGER_FILEPATH)
-fh.setLevel(logging.WARNING)
-
-debugfh = logging.FileHandler(LOGGER_DEBUG_FILEPATH)
-debugfh.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-fh.setFormatter(formatter)
-debugfh.setFormatter(formatter)
-
-logger.addHandler(fh)
-logger.addHandler(debugfh)
-
-logger.info('Logging Started for DBUtils.')

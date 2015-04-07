@@ -1,17 +1,10 @@
 import logging
-import ConfigParser
 import urllib2
-
 from BeautifulSoup import BeautifulSoup
-
 from ISource import ISource
 import dbutils
+import ConfigParser
 
-
-logger = logging.getLogger('UntitledLogger.SourceLogger')
-config = ConfigParser.ConfigParser()
-config.read('config.ini')
-        
 class SourceSparknotes(object):
 
     # get content from page, return context for each character
@@ -22,14 +15,14 @@ class SourceSparknotes(object):
         try:
             page = urllib2.urlopen(url)
             if (page.getcode() == 200):
-                self.logger.info("Page at %s retrieved successfully",url)
+                logging.info("Page at %s retrieved successfully",url)
                 soup = BeautifulSoup(page)
                 character_chunks = soup.findAll("div",{"class" : "content_txt"})
                 source_text = soup.find("h1",{"class" :"title padding-btm-0"}).text
                 for chunk in character_chunks:
                     character_chunk_list.append(chunk)
         except:
-            self.logger.warning("Could not open URL %s", url)
+            logging.warning("Could not open URL %s", url)
         return character_chunk_list, source_text
 
     # given content for a character, extract name, context
@@ -37,7 +30,7 @@ class SourceSparknotes(object):
         soup = BeautifulSoup(str(content))
         person_name = soup.h4.text
         context = soup.p.text
-        self.logger.info("Retrieved content for person %s.", person_name)
+        logging.info("Retrieved content for person %s.", person_name)
         return person_name, context
     
     def calculate_sourcelist(self):
@@ -56,22 +49,24 @@ class SourceSparknotes(object):
                     entry_soup = BeautifulSoup(str(entry))
                     if (len(entry_soup.p.a['href']) > 0):
                         urls_count += 1
-                        with open('..\\data\\urls.txt', 'a') as f:
+                        with open(self.config.get('Data','URL_FILEPATH'), 'a') as f:
                             f.write(entry_soup.p.a['href'] + "\n")
             except:
-                self.logger.warning("Could not open url %s", url)
-            self.logger.info('Finished retrieving list of urls.')
+                logging.warning("Could not open url %s", url)
+            logging.info('Finished retrieving list of urls.')
 
     def get_sourcelist(self):
         urls = []
-        with open('..\\data\\urls.txt', 'r') as f:
+        with open(self.config.get('Data','URL_FILEPATH'), 'r') as f:
             urls = f.read().splitlines()
         return urls
 
     def __init__(self):
-        self.logger = logging.getLogger('UntitledLogger.SourceLogger')
+
         documents = []
         graph = dbutils.getGraph()
+        self.config = ConfigParser.ConfigParser()
+        self.config.read('config.ini')
 
         # self.calculate_sourcelist()
         url_list = self.get_sourcelist()

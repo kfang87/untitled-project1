@@ -2,14 +2,17 @@
 
 from data_processing import untitledutils, dbutils, procutils
 from data_processing.SourceSparknotes import SourceSparknotes
+import logging, logging.config
 
-getdocs = False
+getdocs = True
 build_database = True
 build_vocabulary = True
-init_graph = False
-merge_people = False
+init_graph = True
 
 
+logging.config.fileConfig('logging.ini')
+logger = logging.getLogger('root')
+logger.info('Logging Started.')
 
 if (init_graph):
     graph = dbutils.getGraph()
@@ -19,14 +22,9 @@ if (init_graph):
 if (getdocs):
     source = SourceSparknotes()
 
-if (merge_people):
-    untitledutils.merge_persons('ron-weasley_harry-potter-and-the-chamber-of-secrets','ron-weasley','Ronald Weasley','Harry Potter series')
-    untitledutils.merge_persons('ron-weasley_harry-potter-and-the-prisoner-of-azkaban','ron-weasley','Ronald Weasley','Harry Potter series')
-    untitledutils.merge_persons('ron-weasley_harry-potter-and-the-goblet-of-fire','ron-weasley','Ronald Weasley','Harry Potter series')
-    untitledutils.merge_persons('ron-weasley_harry-potter-and-the-deathly-hallows','ron-weasley','Ronald Weasley','Harry Potter series')
-
 if build_vocabulary:
     untitledutils.get_adj_vocabulary(procutils.get_documents())
 
 if build_database:
    dbutils.update_database()
+
