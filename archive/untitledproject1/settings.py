@@ -38,7 +38,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'untitledproject1.nomeste'
+    'untitledproject1.epnumos'
 )
 
 MIDDLEWARE_CLASSES = (

@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<script type="text/javascript">
+    function clearField(source,target) {
+        if (source.value != ""){
+            target.value = "";
+        }
+    }
+</script>
+<form class="landing" method="POST">
+    <label>Enter a name: </label><input class="input" type="text" name="base_name" onkeypress="clearField(base_name, trait_word)"  />
+    <br />
+    <br />
+    or
+    <br/>
+    <br/>
+    <label>Enter a trait: </label><select class="input" name="trait_word" onChange="clearField(trait_word, base_name)">
+    <option value="">Select a trait</option>
+        {% for t in traits %}
+    <option value="{{t.word}}">{{t.word}}</option>
+    {% endfor %}
+</select>
+    <br/>
+    <br/>
+    <input class="button" type="submit" value="Search"/>
+
+
+</form>
+
+
+{% endblock %}

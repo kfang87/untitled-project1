@@ -1,0 +1,57 @@
+body {
+    background-color: white;
+    text-align: center;
+    font-family: 'Josefin Slab', serif;
+    min-height: 100%
+
+}
+.subtitle {
+    font-style: italic;
+    color: gray;
+}
+h1 {
+    color: black;
+}
+
+.wrapper {
+    min-height: 100%;
+}
+
+.main {
+    margin-bottom: 60px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+    overflow: auto;
+    border: 1px solid gray;
+    margin-left: auto;
+    margin-right: auto;
+    width: 60%;
+}
+
+.footer {
+    position: relative;
+    margin-top: -60px;
+    height: 60px;
+    clear: both;
+    font-size: 0.8em;
+    padding-top: 0.5em;
+    padding-top: 20px;
+}
+
+p.credit {
+    font-size: 0.7em;
+}
+
+input.button {
+    background-color: #ff4500;
+    text-align: center;
+    font-family: 'Josefin Slab', serif;
+    color: white;
+    border: 1px solid orange;
+    padding: 10px 100px 10px 100px;
+}
+
+.input {
+    font-family: 'Josefin Slab', serif;
+    width: 200px;
+}

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title>Epnumos</title>
+  <link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+  <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Josefin+Slab">
+  <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+</head>
+<h2>Epnumos</h2>
+<p class="subtitle">From Greek: <b>epnumos</b>, named after.</p>
+<div class="wrapper">
+<div class="main">
+{% block body %}{% endblock %}
+</div>
+</div>
+<div class="footer">
+&copy; <script>document.write(new Date().getFullYear())</script> Kayla F. Armstrong. This site was built with love, Python and Neo4J.
+<br/>
+<p class="credit">Credits: <a href="http://swoogle.umbc.edu/SimService/">UMBC Swoogle Semantic Similarity Service</a>,
+<a href="http://www.sparknotes.com/sparknotes/">SparkNotes</a> |
+Contact: <a href="mailto:kfang87@gmail.com">kfang87@gmail.com</a></p>
+</div>
+</html>

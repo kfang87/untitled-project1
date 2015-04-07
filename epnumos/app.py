@@ -2,19 +2,23 @@ __author__ = 'Kayla'
 from flask import Flask, redirect, url_for, request, render_template
 from flask import  jsonify
 from py2neo import Graph, Node
+import logging, logging.config
+import sys
 
 app = Flask(__name__)
 
 @app.route('/', methods =['POST','GET'])
 def index():
-    if request.method == 'POST':
-        if(request.form['name']):
-            return redirect(url_for('display_name_results',base_name=request.form['name']))
-        elif(request.form['trait']):
-            return redirect(url_for('display_trait_results',trait_word=request.form['trait']))
-    else:
-        return render_template('index.html')
-
+    try:
+        if request.method == 'POST':
+            if(request.form['base_name']):
+                return redirect(url_for('display_name_results',base_name=request.form['base_name']))
+            elif(request.form['trait_word']):
+                return redirect(url_for('display_trait_results',trait_word=request.form['trait_word']))
+        else:
+            return render_template('index.html',traits=list_traits())
+    except:
+        logger.error("PROBLEM: %s", sys.exc_info())
 # For a name, return most popular traits via the people they are associated with
 
 @app.route('/epnomus/api/name/<base_name>', methods=['GET'])
@@ -63,12 +67,14 @@ def display_trait_results(trait_word):
     person_dict = {}
 
     query = "MATCH (n:Name) -[r]- (p:Person) - [r2] - (d:Descriptor) -[r3]- (t:Trait {{word:'{}'}}) " \
-            "return p.identifier as person_identifier, " \
+            "WHERE length(n.base_name) > 0 " \
+            "return n.base_name as base_name," \
+            "p.identifier as person_identifier, " \
             "p.full_name as person_full_name, " \
             "p.source as person_source, " \
             "sum( toFloat(r2.confidence) * toFloat(r3.similarity))as rating " \
             "ORDER BY rating DESC " \
-            "LIMIT 50".format(trait_word.lower())
+            "LIMIT 100".format(trait_word.lower())
 
     records = graph.cypher.execute(query)
 
@@ -77,10 +83,20 @@ def display_trait_results(trait_word):
         person_full_name = r["person_full_name"]
         person_source = r["person_source"]
         rating = r["rating"]
-        person_dict[person_identifier]  = {"full_name" : person_full_name,
+        basename = r["base_name"]
+        person_dict[person_identifier]  = {"base_name": basename,
+                     "full_name" : person_full_name,
                      "source" : person_source,
-                     "rating" : rating}
+                     "rating" : round(rating,2)}
     return jsonify(person_dict)
 
+def list_traits():
+    graph = Graph()
+    trait_list = graph.find("Trait")
+    return trait_list
+
 if __name__ == '__main__':
+    logging.config.fileConfig('logging.ini')
+    logger = logging.getLogger('root')
+    logger.info('Logging Started.')
     app.run(debug=True)

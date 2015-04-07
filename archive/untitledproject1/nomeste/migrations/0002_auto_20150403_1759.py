@@ -7,7 +7,7 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('nomeste', '0001_initial'),
+        ('epnumos', '0001_initial'),
     ]
 
     operations = [

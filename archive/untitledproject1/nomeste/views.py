@@ -17,7 +17,7 @@ class JSONResponse(HttpResponse):
 @csrf_exempt
 def nomeste_list(request):
     """
-    List all code nomestes, or create a new nomeste.
+    List all code nomestes, or create a new epnumos.
     """
     if request.method == 'GET':
         nomestes = Nomeste.objects.all()
@@ -35,7 +35,7 @@ def nomeste_list(request):
 @csrf_exempt
 def nomeste_detail(request, pk):
     """
-    Retrieve, update or delete a code nomeste.
+    Retrieve, update or delete a code epnumos.
     """
     try:
         nomeste = Nomeste.objects.get(pk=pk)
