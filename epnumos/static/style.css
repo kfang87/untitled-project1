@@ -39,7 +39,7 @@ h1 {
 }
 
 p.credit {
-    font-size: 0.7em;
+    font-size: 0.8em;
 }
 
 input.button {
@@ -48,7 +48,15 @@ input.button {
     font-family: 'Josefin Slab', serif;
     color: white;
     border: 1px solid orange;
-    padding: 10px 100px 10px 100px;
+    padding-top, padding-bottom: 10px;
+    width: 20%;
+}
+
+label.error_msg {
+    padding-top: 1em;
+    color: red;
+    display: none;
+    font-size: 0.7em;
 }
 
 .input {

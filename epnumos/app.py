@@ -64,7 +64,7 @@ def display_name_results(base_name):
 @app.route('/epnomus/api/trait/<trait_word>')
 def display_trait_results(trait_word):
     graph = Graph()
-    person_dict = {}
+    name_dict = {}
 
     query = "MATCH (n:Name) -[r]- (p:Person) - [r2] - (d:Descriptor) -[r3]- (t:Trait {{word:'{}'}}) " \
             "WHERE length(n.base_name) > 0 " \
@@ -84,11 +84,16 @@ def display_trait_results(trait_word):
         person_source = r["person_source"]
         rating = r["rating"]
         basename = r["base_name"]
-        person_dict[person_identifier]  = {"base_name": basename,
-                     "full_name" : person_full_name,
-                     "source" : person_source,
-                     "rating" : round(rating,2)}
-    return jsonify(person_dict)
+        person_dict = {}
+        if name_dict.has_key(basename):
+            person_dict = name_dict[basename]
+        if not person_dict.has_key(person_identifier):
+            person_dict[person_identifier]  = {"base_name": basename,
+                         "full_name" : person_full_name,
+                         "source" : person_source,
+                         "rating" : round(rating,2)}
+        name_dict[basename] = person_dict
+    return jsonify(name_dict)
 
 def list_traits():
     graph = Graph()

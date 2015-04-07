@@ -7,15 +7,26 @@
             target.value = "";
         }
     }
+
+    function validate_form() {
+        if (document.getElementById('base_name').value != "" || document.getElementById('trait_word').value != "") {
+            return true;
+        }
+        else {
+            document.getElementById('error_msg').style.display = 'block';
+            return false;
+        }
+
+    }
 </script>
-<form class="landing" method="POST">
-    <label>Enter a name: </label><input class="input" type="text" name="base_name" onkeypress="clearField(base_name, trait_word)"  />
+<form class="landing" onsubmit="return validate_form()" method="POST">
+    <label>Enter a name: </label><input class="input" type="text" id="base_name" name="base_name" onkeypress="clearField(base_name, trait_word)" />
     <br />
     <br />
     or
     <br/>
     <br/>
-    <label>Enter a trait: </label><select class="input" name="trait_word" onChange="clearField(trait_word, base_name)">
+    <label>Enter a trait: </label><select class="input" id="trait_word" name="trait_word" onChange="clearField(trait_word, base_name)">
     <option value="">Select a trait</option>
         {% for t in traits %}
     <option value="{{t.word}}">{{t.word}}</option>
@@ -23,8 +34,9 @@
 </select>
     <br/>
     <br/>
-    <input class="button" type="submit" value="Search"/>
-
+    <input id='submit_button' class="button" type="submit" value="Search" />
+    <br/>
+    <label id="error_msg" class="error_msg">You must enter either a Name or a Trait to proceed.</label>
 
 </form>
 
