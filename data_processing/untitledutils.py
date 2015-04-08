@@ -2,7 +2,7 @@ import logging
 import os
 import nltk
 from nameparser import HumanName
-from data_processing import dbutils
+import dbutils
 import enchant
 import ConfigParser
 

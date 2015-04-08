@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from data_processing import untitledutils, dbutils, procutils
-from data_processing.SourceSparknotes import SourceSparknotes
+import untitledutils
+import dbutils
+import procutils
+from SourceSparknotes import SourceSparknotes
 import logging, logging.config
 
 getdocs = True

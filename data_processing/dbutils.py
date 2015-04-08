@@ -3,7 +3,7 @@
 import logging
 import ntpath
 from py2neo import Graph, Relationship
-from data_processing import procutils
+import procutils
 import os
 import sys
 import ConfigParser
