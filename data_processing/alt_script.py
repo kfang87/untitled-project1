@@ -8,7 +8,7 @@ import logging, logging.config
 
 getdocs = True
 build_database = True
-build_vocabulary = True
+build_vocabulary = False
 init_graph = True
 
 

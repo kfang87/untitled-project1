@@ -3,7 +3,7 @@ import os
 import nltk
 from nameparser import HumanName
 import dbutils
-import enchant
+#import enchant
 import ConfigParser
 
 config = ConfigParser.ConfigParser()
@@ -45,7 +45,7 @@ def get_adj_vocabulary(docs):
     logging.info("Starting to build vocabulary with documents")
     vocabulary = set()
     total_vocab = 0
-    english_dictionary = enchant.Dict("en_US")
+    #english_dictionary = enchant.Dict("en_US")
     for doc in docs:
         try:
             with open(doc) as f:
@@ -55,7 +55,7 @@ def get_adj_vocabulary(docs):
                     pos = nltk.pos_tag(nltk.word_tokenize(sentence))
                     for (word,tag) in pos:
                         word = word.lower()
-                        if tag == "JJ" and not vocabulary.__contains__(word) and english_dictionary.check(word):
+                        if tag == "JJ" and not vocabulary.__contains__(word):# and english_dictionary.check(word):
                             vocabulary.add(word)
                             with open(config.get('Data','VOCAB_FILEPATH'),'a') as f:
                                 f.write(word + "\n")
