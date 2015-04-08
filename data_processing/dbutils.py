@@ -179,7 +179,7 @@ def update_database():
         for word in vocabulary_dict:
             CreateDescriptor(graph,word)
     if (create_traits):
-        with open(config.get('data','TRAIT_FILEPATH')) as f:
+        with open(config.get('Data','TRAIT_FILEPATH')) as f:
             characteristics_array = f.read().splitlines()
         for char in characteristics_array:
             CreateCharacterTrait(graph,char)
@@ -188,7 +188,7 @@ def update_database():
             RelatePersonHasName(graph, ntpath.basename(doc).replace(".txt",""),  procutils.get_name_from_docname(doc))
 
     if (create_descriptor_trait):
-        with open(config.get('data','TRAIT_FILEPATH')) as f:
+        with open(config.get('Data','TRAIT_FILEPATH')) as f:
             characteristics_array = f.read().splitlines()
         for char in characteristics_array:
             for word in vocabulary_dict:
