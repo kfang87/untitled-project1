@@ -97,8 +97,12 @@ def display_trait_results(trait_word):
 
 def list_traits():
     graph = Graph()
-    trait_list = graph.find("Trait")
-    return trait_list
+    word_list = map(extract_trait_word,graph.find("Trait"))
+    word_list.sort()
+    return word_list
+
+def extract_trait_word(trait_entry):
+    return trait_entry.properties["word"]
 
 if __name__ == '__main__':
     logging.config.fileConfig('logging.ini')

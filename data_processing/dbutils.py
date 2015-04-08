@@ -11,12 +11,12 @@ import ConfigParser
 config = ConfigParser.ConfigParser()
 config.read('config.ini')
 
-create_names = True
-create_descriptors = True
+create_names = False
+create_descriptors = False
 create_traits = True
-create_person_name = True
-create_descriptor_trait = True
-create_person_descriptor = True
+create_person_name = False
+create_descriptor_trait = False
+create_person_descriptor = False
 
 # Graph functions
 

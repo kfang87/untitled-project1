@@ -29,7 +29,7 @@
     <label>Enter a trait: </label><select class="input" id="trait_word" name="trait_word" onChange="clearField(trait_word, base_name)">
     <option value="">Select a trait</option>
         {% for t in traits %}
-    <option value="{{t.word}}">{{t.word}}</option>
+    <option value="{{t}}">{{t}}</option>
     {% endfor %}
 </select>
     <br/>

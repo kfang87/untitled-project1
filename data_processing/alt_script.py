@@ -6,8 +6,8 @@ import procutils
 from SourceSparknotes import SourceSparknotes
 import logging, logging.config
 
-getdocs = True
-build_database = False
+getdocs = False
+build_database = True
 build_vocabulary = False
 init_graph = False
 
