@@ -35,7 +35,7 @@ def load_vocabulary():
     vocabulary_set = set()
     with open(config.get('Data','VOCAB_FILEPATH'),'r') as f:
         vocabulary_set = f.read().splitlines()
-    logging.info("Vocabulary set loaded successfully with %s words", vocabulary_set.count())
+    logging.info("Vocabulary set loaded successfully with %s words", vocabulary_set.__len__())
     return vocabulary_set
 
 def get_documents():

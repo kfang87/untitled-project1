@@ -7,9 +7,9 @@ from SourceSparknotes import SourceSparknotes
 import logging, logging.config
 
 getdocs = True
-build_database = True
+build_database = False
 build_vocabulary = False
-init_graph = True
+init_graph = False
 
 
 logging.config.fileConfig('logging.ini')

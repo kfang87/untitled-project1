@@ -132,6 +132,7 @@ def MergePersonNodes(source_person_identifier, target_person_identifier, new_per
         if (r_list):
             for r in r_list:
                 new_r = Relationship(t_person, r.type, r.end_node)
+                new_r.properties = r.properties
                 graph.create_unique(new_r)
                 new_r.push()
         t_person.properties["full_name"] = new_person_fullname
