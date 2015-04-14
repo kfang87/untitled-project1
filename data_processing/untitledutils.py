@@ -66,4 +66,3 @@ def get_adj_vocabulary(docs):
             logging.warning("Failed to open and parse %s", doc)
     logging.info("Completed vocabulary building with a dictionary of %s adjectives", vocabulary.__len__())
     return
-

@@ -7,16 +7,19 @@ import procutils
 import os
 import sys
 import ConfigParser
+from os import listdir, path
 
 config = ConfigParser.ConfigParser()
 config.read('config.ini')
 
 create_names = False
 create_descriptors = False
-create_traits = True
+create_traits = False
 create_person_name = False
 create_descriptor_trait = False
 create_person_descriptor = False
+create_year = False
+create_name_year = True
 
 # Graph functions
 
@@ -73,13 +76,40 @@ def CreateCharacterTrait(graph, word):
 
 def CreateName(graph, firstname):
     try:
-        name = graph.merge_one("Name","base_name",firstname)
-        name.push()
+        name_node = graph.merge_one("Name","base_name",firstname)
+        name_node.push()
         logging.info("Name node created successfully for %s.",firstname)
     except:
         logging.warning("Problem with creating name for %s",firstname)
-    return firstname
+    return name_node
 
+def CreateYear(graph, year):
+    try:
+        year_node = graph.merge_one("Year","year",year)
+        year_node.push()
+        logging.info("Year node created successfully for %s", year)
+    except:
+        logging.warning("Problem with creating year for %s", year)
+    return year_node
+
+def HydrateName(graph,name_dict):
+    print 'TODO'
+
+def RelateNameYear(graph, base_name, year, popularity_count):
+    try:
+        year_node = graph.find_one("Year","year", year)
+        name_node = graph.find_one("Name","base_name",base_name)
+
+        if not name_node:
+            name_node = CreateName(graph, base_name)
+        if not year_node:
+            year_node = CreateYear(graph, year)
+        r = Relationship(name_node, "GIVEN_IN", year_node, count=popularity_count)
+        graph.create_unique(r)
+        r.push()
+        logging.info("Relationship GIVEN_IN created between %s and %s", name_node, year)
+    except Exception as e:
+        logging.warning("Problem with creating relationship between %s and %s: %s",base_name, year, e.message)
 # Relationship functions
 
 def RelatePersonHasName(graph, person_identifier, base_name):
@@ -183,10 +213,26 @@ def update_database():
             characteristics_array = f.read().splitlines()
         for char in characteristics_array:
             CreateCharacterTrait(graph,char)
+    if (create_year):
+        dir = config.get('Data','SSA_FILEPATH')
+        for file in listdir(unicode(dir,'utf-8')):
+            year = path.splitext(ntpath.basename(file))[0].replace("yob","")
+            CreateYear(graph, year)
+    if (create_name_year):
+        dir = config.get('Data','SSA_FILEPATH')
+        for file in listdir(unicode(dir,'utf-8')):
+            year = path.splitext(ntpath.basename(file))[0].replace("yob","")
+            with open(path.join(dir,file)) as f:
+                line_list = f.read().splitlines()
+                for line in line_list:
+                    entry = line.split(',')
+                    name = entry[0]
+                    count = int(entry[2])
+                    if count == 1000:
+                        RelateNameYear(graph,name,year,count)
     if (create_person_name):
         for doc in documents:
             RelatePersonHasName(graph, ntpath.basename(doc).replace(".txt",""),  procutils.get_name_from_docname(doc))
-
     if (create_descriptor_trait):
         with open(config.get('Data','TRAIT_FILEPATH')) as f:
             characteristics_array = f.read().splitlines()
