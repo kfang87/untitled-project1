@@ -21,6 +21,11 @@ def index():
         logger.error("PROBLEM: %s", sys.exc_info())
 # For a name, return most popular traits via the people they are associated with
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
 @app.route('/epnomus/api/name/<base_name>', methods=['GET'])
 def display_name_results(base_name):
     graph = Graph()

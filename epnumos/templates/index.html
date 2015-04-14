@@ -19,14 +19,18 @@
 
     }
 </script>
+<div class="intro">
+    <b>Epnumos</b> uses natural language processing to create meaningful context around personal names, beyond just the basic etymology and origin.
+    <br />
+    <br />
 <form class="landing" onsubmit="return validate_form()" method="POST">
-    <label>Enter a name: </label><input class="input" type="text" id="base_name" name="base_name" onkeypress="clearField(base_name, trait_word)" />
+    <input class="input" type="text" id="base_name" name="base_name" onkeypress="clearField(base_name, trait_word)" placeholder="Type a name" />
     <br />
     <br />
     or
     <br/>
     <br/>
-    <label>Enter a trait: </label><select class="input" id="trait_word" name="trait_word" onChange="clearField(trait_word, base_name)">
+    <select class="input" id="trait_word" name="trait_word" onChange="clearField(trait_word, base_name)">
     <option value="">Select a trait</option>
         {% for t in traits %}
     <option value="{{t}}">{{t}}</option>
@@ -39,6 +43,6 @@
     <label id="error_msg" class="error_msg">You must enter either a Name or a Trait to proceed.</label>
 
 </form>
-
+</div>
 
 {% endblock %}

@@ -17,9 +17,9 @@ create_descriptors = False
 create_traits = False
 create_person_name = False
 create_descriptor_trait = False
-create_person_descriptor = False
+create_person_descriptor = True
 create_year = False
-create_name_year = True
+create_name_year = False
 
 # Graph functions
 
@@ -228,7 +228,7 @@ def update_database():
                     entry = line.split(',')
                     name = entry[0]
                     count = int(entry[2])
-                    if count == 1000:
+                    if count > 500:
                         RelateNameYear(graph,name,year,count)
     if (create_person_name):
         for doc in documents:

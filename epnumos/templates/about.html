@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<h4>Introduction</h4>
+<p>We have an intrinsic urge to name things (children, pets, vehicles) after those who inspire us, move us, or represent something deeply meaningful to us -- whether it's an compassionate great-aunt, a famous freedom fighter or an outrageous character from 30 Rock. Sometimes, these symbols are found in close family members and friends. Other times, they are found in strangers or the imaginations of strangers.</p>
+<p>Epnumos was conceived to address a lack of meaningful context in existing baby names websites. Many have compiled information about a name's origin and etymology, but nothing about the rich context of real and fictional personalities that embody these names (aside from a handful of manually-curated lists). </p>
+<p>
+    Epnumos draws from the sources of information about these figures to try to understand who they were, what were they like, and what characteristic traits they embody.
+</p>
+
+<h4>Development and Implementation</h4>
+<p>Epnumos processes data from a variety of widely-available data sources and tries to extract relevant text that describe what a person is like ("descriptors") and calculates how important the descriptor is in describing a person, using a range of natural language processing tools available in Python. For example, it may extract all adjectival parts-of-speech from a website that describes a person and use an TD-IDF matrix to calculate the relevance of the term to the person. It then uses the Swoogle Similarity API to determine how similar these descriptors are to commonly desirable character traits ("traits"). </p>
+<p>
+The relationships between names, people, descriptors and traits are stored in a graph database (implemented in Neo4J) to allow easy querying.
+</p>
+<p>It then supplements existing name information about popularity (from the SSA) and origin/etymology to present a richer name browsing experience. Epnumos data is currently accessible via a RESTful API and a web application UI.</p>
+{% endblock %}

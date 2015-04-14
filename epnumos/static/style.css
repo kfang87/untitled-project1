@@ -13,19 +13,29 @@ h1 {
     color: black;
 }
 
+h2.header, h2.header a {
+    text-decoration: none;
+    color: black;
+}
+
+.intro {
+    padding: 20px 10em 20px 10em;
+    text-align: center;
+}
+
 .wrapper {
     min-height: 100%;
 }
 
 .main {
     margin-bottom: 60px;
-    padding-top: 30px;
-    padding-bottom: 30px;
+    padding: 30px 30px 30px 30px;
     overflow: auto;
     border: 1px solid gray;
     margin-left: auto;
     margin-right: auto;
     width: 60%;
+    text-align: left;
 }
 
 .footer {
