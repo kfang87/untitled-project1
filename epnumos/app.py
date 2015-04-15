@@ -16,7 +16,7 @@ def index():
                 base_name=request.form['base_name']
                 return redirect(url_for('display_name_results',base_name=base_name))
             elif(request.form['trait_word']):
-                return redirect(url_for('show_trait_results',trait_word=request.form['trait_word']))
+                return redirect(url_for('display_trait_results',trait_word=request.form['trait_word']))
         else:
             traits = dbaccess.get_traits_list()
             return render_template('index.html',traits=traits)
