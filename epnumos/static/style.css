@@ -73,3 +73,19 @@ label.error_msg {
     font-family: 'Josefin Slab', serif;
     width: 200px;
 }
+
+.history_bar {
+    text-align: left;
+    padding: 5em, 5em, 5em, 5em;
+    color: black;
+    font-size: 0.9em;
+}
+
+.history_bar a {
+    color: orange;
+    text-decoration: none;
+}
+
+.history_bar a:hover {
+    color: purple;
+}
