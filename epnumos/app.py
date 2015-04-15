@@ -30,7 +30,10 @@ def about():
 def display_name_results(base_name):
     graph = Graph()
     person_dict = {}
+    attributes_dict = {}
+    name_dict = {}
 
+    # Fill in persons dictionary
     query = ("MATCH (n:Name {{base_name: '{0}'}}) -[r]- (p:Person) -[r2]-(d:Descriptor) -[r3]- (t:Trait) " \
             "RETURN p.identifier as person_identifier, " \
             "p.full_name as person_full_name, " \
@@ -49,7 +52,6 @@ def display_name_results(base_name):
         trait = r["trait"]
         rating = r["rating"]
 
-
         person_value = {}
 
         # If person exists, retrieve and add to the trait
@@ -64,7 +66,32 @@ def display_name_results(base_name):
 
         person_dict[person_identifier] = person_value
 
-    return jsonify(person_dict)
+        name_dict["persons"] = person_dict
+
+    # Fill in name's basic attributes
+    name_node = graph.find_one("Name", "base_name", base_name)
+    if name_node:
+
+        attributes_dict["gender"] = name_node.properties["gender"]
+        attributes_dict["origin"] = name_node.properties["origin"]
+        attributes_dict["meaning"] = name_node.properties["meaning"]
+
+
+    # Fill in name's popularity attribute
+    year_query = ("MATCH (n:Name {{base_name:'{0}'}}) -[r:GIVEN_IN] - (y:Year) " \
+                  "RETURN y.year as year, " \
+                  "r.count as count")\
+                    .format(base_name)
+    popularity_records = graph.cypher.execute(year_query)
+    year_dict = {}
+    for r in popularity_records:
+        year_dict[r["year"]] = r["count"]
+    attributes_dict["popularity"] = year_dict
+
+    # Attach attributes to main name entry
+    name_dict["attributes"] = attributes_dict
+
+    return jsonify(name_dict)
 
 @app.route('/epnomus/api/trait/<trait_word>')
 def display_trait_results(trait_word):
@@ -74,6 +101,9 @@ def display_trait_results(trait_word):
     query = "MATCH (n:Name) -[r]- (p:Person) - [r2] - (d:Descriptor) -[r3]- (t:Trait {{word:'{}'}}) " \
             "WHERE length(n.base_name) > 0 " \
             "return n.base_name as base_name," \
+            "n.origin as origin," \
+            "n.gender as gender," \
+            "n.meaning as meaning," \
             "p.identifier as person_identifier, " \
             "p.full_name as person_full_name, " \
             "p.source as person_source, " \
@@ -89,15 +119,24 @@ def display_trait_results(trait_word):
         person_source = r["person_source"]
         rating = r["rating"]
         basename = r["base_name"]
+        origin = r["origin"]
+        gender = r["gender"]
+        meaning = r["meaning"]
         person_dict = {}
         if name_dict.has_key(basename):
-            person_dict = name_dict[basename]
+            if name_dict[basename].has_key("persons"):
+                person_dict = name_dict[basename]["persons"]
+        else:
+            name_dict[basename]  = {}
+
         if not person_dict.has_key(person_identifier):
-            person_dict[person_identifier]  = {"base_name": basename,
-                         "full_name" : person_full_name,
+            person_dict[person_identifier]  = {"full_name" : person_full_name,
                          "source" : person_source,
                          "rating" : round(rating,2)}
-        name_dict[basename] = person_dict
+        name_dict[basename]["persons"] = person_dict
+        name_dict[basename]["origin"] = origin
+        name_dict[basename]["gender"] = gender
+        name_dict[basename]["meaning"] = meaning
     return jsonify(name_dict)
 
 def list_traits():

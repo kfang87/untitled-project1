@@ -8,6 +8,7 @@ import os
 import sys
 import ConfigParser
 from os import listdir, path
+import SourceNameMeaning
 
 config = ConfigParser.ConfigParser()
 config.read('config.ini')
@@ -17,9 +18,10 @@ create_descriptors = False
 create_traits = False
 create_person_name = False
 create_descriptor_trait = False
-create_person_descriptor = True
-create_year = False
-create_name_year = False
+create_person_descriptor = False
+create_year = True
+create_name_year = True
+hydrate_name = True
 
 # Graph functions
 
@@ -92,8 +94,17 @@ def CreateYear(graph, year):
         logging.warning("Problem with creating year for %s", year)
     return year_node
 
-def HydrateName(graph,name_dict):
-    print 'TODO'
+def HydrateName(graph,base_name, name_dict):
+    try:
+        name_node = graph.find_one("Name","base_name",base_name)
+        if name_node:
+            name_node.properties["origin"] = name_dict["origin"]
+            name_node.properties["meaning"] = name_dict["meaning"]
+            name_node.properties["gender"] = name_dict["gender"]
+            name_node.push()
+            logging.info("Hydrated name %s", base_name)
+    except Exception as e:
+        logging.warning("Problem with hydrating name %s with dictionary values %s", base_name, name_dict )
 
 def RelateNameYear(graph, base_name, year, popularity_count):
     try:
@@ -252,6 +263,12 @@ def update_database():
                 word_identifier = word + "-JJ-1"
                 RelatePersonDescribedbyDescriptor(graph,person_identifier,word_identifier,affinity)
 
+    if (hydrate_name):
+        name_list = graph.find("Name")
+        for name_node in name_list:
+            base_name = name_node.properties["base_name"]
+            name_dict = SourceNameMeaning.retrieve_name_meaning(base_name)
+            HydrateName(graph,base_name, name_dict)
 def create_person_document(graph, person_name, context, source_text):
 
     DOCUMENT_FILEPATH = config.get('Sourcing','DOCUMENT_FILEPATH')
