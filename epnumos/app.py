@@ -1,11 +1,14 @@
 __author__ = 'Kayla'
-from flask import Flask, redirect, url_for, request, render_template, session
-from flask import  jsonify, json
-import dbaccess
-import logging, logging.config
+import logging
+import logging.config
 import sys
-from collections import deque
-import HTMLParser
+from collections import OrderedDict
+
+from flask import Flask, redirect, url_for, request, render_template, session
+from flask import  jsonify
+
+import dbaccess
+
 
 app = Flask(__name__)
 
@@ -50,12 +53,13 @@ def display_trait_results(trait_word):
 @app.route('/ui/trait/<trait_word>')
 def show_trait_results(trait_word):
     update_cookie_list(session,"searched_traits",trait_word)
-    return render_template('show_trait.html',res=dbaccess.get_name_dict_for_trait(trait_word),trait=trait_word)
+    name_dict = dbaccess.get_name_dict_for_trait(trait_word)
+    return render_template('show_trait.html',res=name_dict,trait=trait_word)
 
 @app.route('/ui/name/<base_name>')
 def show_name_results(base_name):
     name_dict = {}
-    name_dict["persons"] = dbaccess.get_person_dict_for_name(base_name)
+    name_dict["persons"] = OrderedDict(sorted(dbaccess.get_person_dict_for_name(base_name).items(), key=lambda p: p[0])) # dbaccess.get_person_dict_for_name(base_name)
     name_dict["attributes"] = dbaccess.get_attributes_dict_for_name(base_name)
     name_dict["popularity"] = dbaccess.get_popularity_dict_for_name(base_name)
     update_cookie_list(session,"searched_names",base_name)

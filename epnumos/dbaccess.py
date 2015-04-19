@@ -1,6 +1,7 @@
 __author__ = 'Kayla'
 from py2neo import Graph
 import HTMLParser
+from collections import OrderedDict
 
 graph = Graph()
 h = HTMLParser.HTMLParser()
@@ -34,7 +35,7 @@ def get_person_dict_for_name( base_name):
             person_value = person_dict[person_identifier]
             trait_dict = person_value["traits"]
             trait_dict[trait] = round(rating,2)
-            person_value["traits"] = trait_dict
+            person_value["traits"] = OrderedDict(sorted(trait_dict.items(),key=lambda trait : trait[1], reverse=True))
         else: #initialize personal and traits dictionary
             person_value["personal"] = {"full_name": person_full_name, "source" : person_source }
             person_value["traits"] = {trait: round(rating,2)}
@@ -103,11 +104,14 @@ def get_name_dict_for_trait(trait_word):
             person_dict[person_identifier]  = {"full_name" : person_full_name,
                          "source" : person_source,
                          "rating" : round(rating,2)}
-        name_dict[basename]["persons"] = person_dict
+        name_dict[basename]["persons"] = OrderedDict(sorted(person_dict.items(),key=lambda person: person[1]["rating"],reverse=True))
         name_dict[basename]["origin"] = origin
         name_dict[basename]["gender"] = gender
         name_dict[basename]["meaning"] = meaning
-    return {"names": name_dict }
+        if not name_dict[basename].has_key("max_rating") or  rating > name_dict[basename]["max_rating"]:
+            name_dict[basename]["max_rating"] = rating
+
+    return {"names": OrderedDict(sorted(name_dict.items(),key=lambda name: (name[1]["max_rating"]),reverse=True))}
 
 def get_traits_list():
     word_list = map(extract_trait_word,graph.find("Trait"))
