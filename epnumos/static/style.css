@@ -89,3 +89,13 @@ label.error_msg {
 .history_bar a:hover {
     color: purple;
 }
+
+.trait_name {
+    border-top: 1px solid gray;
+    margin: 10px 10px 10px 10px;
+}
+
+.trait_person {
+    margin-left: 2em;
+    margin-top: 2em;
+}

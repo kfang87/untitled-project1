@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+{% block body %}
+<div class="trait">
+    <h2>Names of people who embody "{{trait}}"</h2>
+</div>
+{% for k, root in res.iteritems() %}
+    {% for k2, name in root.iteritems() %}
+        <div class="trait_name">
+            <h3><a href="{{ url_for('show_name_results', base_name=k2)}}">{{k2}}</a></h3><br/>
+            <b>Origin:</b> {{name["origin"]}} <br />
+            <b>Common Gender Association</b> {{name["gender"]}}<br/>
+            <b>Meaning: </b> {{name["meaning"]}}<br/>
+            <div class="trait_persons">
+                {% for key3, person in name["persons"].iteritems() %}
+                    <div class="trait_person">
+                        <b>Person's full name:</b> {{person["full_name"]}}<br />
+                        <b>Known from:</b> {{person["source"]}}<br/>
+                        <b>Embodiment of trait:</b> {{person["rating"]}}<br/>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+{% endfor %}
+{% endblock %}

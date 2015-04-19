@@ -1,5 +1,6 @@
 __author__ = 'Kayla'
 from py2neo import Graph
+from flask import json
 
 graph = Graph()
 
@@ -106,7 +107,7 @@ def get_name_dict_for_trait(trait_word):
         name_dict[basename]["origin"] = origin
         name_dict[basename]["gender"] = gender
         name_dict[basename]["meaning"] = meaning
-    return name_dict
+    return {"names": name_dict }
 
 def get_traits_list():
     word_list = map(extract_trait_word,graph.find("Trait"))

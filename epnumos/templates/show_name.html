@@ -1,0 +1,57 @@
+{% extends "layout.html" %}
+{% block body %}
+<script type="text/javascript"
+      src="https://www.google.com/jsapi?autoload={
+        'modules':[{
+          'name':'visualization',
+          'version':'1',
+          'packages':['corechart']
+        }]
+      }"></script>
+<div class="attributes">
+    <h2>{{name}}</h2>
+    <b>Origin:</b> {{res["attributes"]["origin"]}}<br/>
+    <b>Common gender association:</b> {{res["attributes"]["gender"]}}<br/>
+    <b>Meaning:</b> {{res["attributes"]["meaning"]}}<br/>
+</div>
+<div id="curve_chart" style="width: 100%; height: 500px"></div>
+<h3>People named {{name}}: </h3>
+    {% for k, person in res["persons"].iteritems() %}
+        <div class="trait_person">
+            <b>Person's full name:</b> {{person["personal"]["full_name"]}}<br />
+            <b>Known from:</b> {{person["personal"]["source"]}}<br/>
+            <b>Traits:</b>
+            {% for trait, rating in person["traits"].iteritems() %}
+            <br/><a href="{{ url_for('show_trait_results',trait_word=trait)}}">{{trait}}</a> ({{rating}})
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <table id="test" style="display:none">
+        {% for year, pop in res["popularity"].iteritems() %}
+    <tr>
+        <td> {{year}}</td>
+        <td> {{pop}} </td>
+    </tr>
+    {% endfor %}
+    </table>
+<script type="text/javascript">
+    var data = new google.visualization.DataTable();
+    table = document.getElementById("test");
+    data.addColumn("string","Year");
+    data.addColumn("number","Popularity");
+    for (var i = 0, row; row = table.rows[i]; i++) {
+        data.addRow([row.cells[0].innerHTML,Number(row.cells[1].innerHTML)]);
+    }
+    data.sort([{column: 0}])
+       var options = {
+      title: 'Popularity of {{name}} over time',
+      curveType: 'function',
+      legend: { position: 'bottom' }
+    };
+
+    var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+
+    chart.draw(data, options);
+</script>
+
+{% endblock %}

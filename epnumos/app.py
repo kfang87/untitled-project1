@@ -1,10 +1,11 @@
 __author__ = 'Kayla'
 from flask import Flask, redirect, url_for, request, render_template, session
-from flask import  jsonify
+from flask import  jsonify, json
 import dbaccess
 import logging, logging.config
 import sys
 from collections import deque
+import HTMLParser
 
 app = Flask(__name__)
 
@@ -14,9 +15,9 @@ def index():
         if request.method == 'POST':
             if(request.form['base_name']):
                 base_name=request.form['base_name']
-                return redirect(url_for('display_name_results',base_name=base_name))
+                return redirect(url_for('show_name_results',base_name=base_name))
             elif(request.form['trait_word']):
-                return redirect(url_for('display_trait_results',trait_word=request.form['trait_word']))
+                return redirect(url_for('show_trait_results',trait_word=request.form['trait_word']))
         else:
             traits = dbaccess.get_traits_list()
             return render_template('index.html',traits=traits)
@@ -40,28 +41,38 @@ def display_name_results(base_name):
     name_dict["persons"] = dbaccess.get_person_dict_for_name(base_name)
     name_dict["attributes"] = dbaccess.get_attributes_dict_for_name(base_name)
     name_dict["popularity"] = dbaccess.get_popularity_dict_for_name(base_name)
-    update_cookie_list(session,"searched_names",base_name)
-    return jsonify(name_dict)
+    return jsonify({base_name : name_dict})
 
 @app.route('/api/trait/<trait_word>')
 def display_trait_results(trait_word):
-    update_cookie_list(session,"searched_traits",trait_word)
     return jsonify(dbaccess.get_name_dict_for_trait(trait_word))
 
 @app.route('/ui/trait/<trait_word>')
 def show_trait_results(trait_word):
-    results = display_trait_results(trait_word)
+    update_cookie_list(session,"searched_traits",trait_word)
+    return render_template('show_trait.html',res=dbaccess.get_name_dict_for_trait(trait_word),trait=trait_word)
+
+@app.route('/ui/name/<base_name>')
+def show_name_results(base_name):
+    name_dict = {}
+    name_dict["persons"] = dbaccess.get_person_dict_for_name(base_name)
+    name_dict["attributes"] = dbaccess.get_attributes_dict_for_name(base_name)
+    name_dict["popularity"] = dbaccess.get_popularity_dict_for_name(base_name)
+    update_cookie_list(session,"searched_names",base_name)
+    return render_template('show_name.html',res=name_dict, name=base_name)
+
+def get_trait_results(trait_word):
+    return dbaccess.get_name_dict_for_trait(trait_word)
 
 def update_cookie_list(session, cookie_key, new_value):
     list = []
     if cookie_key in session:
-        list = deque(session[cookie_key].split(","))
-        logging.info("here 1")
-    list.append(new_value)
+        list = session[cookie_key].split(",")
+    if not list.__contains__(new_value):
+        list.append(new_value)
     while list.__len__() > 10:
-        list.popleft()
+        del list[0]
     session[cookie_key] = ",".join(list)
-    logging.info("here 2 %s", session[cookie_key])
     return session[cookie_key]
 
 def get_cookie_list(session, cookie_key):

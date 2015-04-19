@@ -14,21 +14,6 @@
 <div class="main">
 
 {% block body %}{% endblock %}
-    <div class="history_bar">
-        {% if session.searched_names %}
-            Your recently searched names:
-            {% for n in session.searched_names.split(',')%}
-                <a href="{{url_for('display_name_results',base_name=n)}}">{{n}}</a>
-            {% endfor %}
-        {% endif %}
-        <br/>
-        {% if session.searched_traits %}
-            Your recently searched traits:
-            {% for n in session.searched_traits.split(',')%}
-                <a href="{{url_for('display_trait_results',trait_word=n)}}">{{ n }}</a>
-            {% endfor %}
-        {% endif %}
-    </div>
 </div>
 </div>
 <div class="footer">
