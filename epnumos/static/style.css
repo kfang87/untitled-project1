@@ -99,3 +99,7 @@ label.error_msg {
     margin-left: 2em;
     margin-top: 2em;
 }
+
+.name_person {
+    margin: 10px 10px 10px 10px;
+}

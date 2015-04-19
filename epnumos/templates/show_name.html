@@ -17,10 +17,10 @@
 <div id="curve_chart" style="width: 100%; height: 500px"></div>
 <h3>People named {{name}}: </h3>
     {% for k, person in res["persons"].iteritems() %}
-        <div class="trait_person">
-            <b>Person's full name:</b> {{person["personal"]["full_name"]}}<br />
-            <b>Known from:</b> {{person["personal"]["source"]}}<br/>
-            <b>Traits:</b>
+        <div class="name_person">
+           <b>{{person["personal"]["full_name"]}}</b><br />
+            Known from: {{person["personal"]["source"]}}<br/>
+            Traits:
             {% for trait, rating in person["traits"].iteritems() %}
             <br/><a href="{{ url_for('show_trait_results',trait_word=trait)}}">{{trait}}</a> ({{rating}})
             {% endfor %}
