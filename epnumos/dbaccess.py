@@ -1,9 +1,9 @@
 __author__ = 'Kayla'
 from py2neo import Graph
-from flask import json
+import HTMLParser
 
 graph = Graph()
-
+h = HTMLParser.HTMLParser()
 # Name queries
 
 def get_person_dict_for_name( base_name):
@@ -22,8 +22,8 @@ def get_person_dict_for_name( base_name):
     records =  graph.cypher.execute(query)
     for r in records:
         person_identifier = r["person_identifier"]
-        person_full_name = r["person_full_name"]
-        person_source = r["person_source"]
+        person_full_name = h.unescape(r["person_full_name"])
+        person_source = h.unescape(r["person_source"])
         trait = r["trait"]
         rating = r["rating"]
 
@@ -85,8 +85,8 @@ def get_name_dict_for_trait(trait_word):
 
     for r in records:
         person_identifier = r["person_identifier"]
-        person_full_name = r["person_full_name"]
-        person_source = r["person_source"]
+        person_full_name = h.unescape(r["person_full_name"])
+        person_source = h.unescape(r["person_source"])
         rating = r["rating"]
         basename = r["base_name"]
         origin = r["origin"]
