@@ -13,9 +13,9 @@
             <div class="trait_persons">
                 {% for key3, person in name["persons"].iteritems() %}
                     <div class="trait_person">
-                        <b>Person's full name:</b> {{person["full_name"]}}<br />
-                        <b>Known from:</b> {{person["source"]}}<br/>
-                        <b>Embodiment of trait:</b> {{person["rating"]}}<br/>
+                       <b>{{person["full_name"]}}</b><br/>
+                        Known from: {{person["source"]}}<br/>
+                        Trait embodiment rating: {{person["rating"]}}<br/>
                     </div>
                 {% endfor %}
             </div>
