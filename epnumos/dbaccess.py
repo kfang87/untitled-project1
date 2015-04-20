@@ -19,7 +19,7 @@ def get_person_dict_for_name( base_name):
             "t.word as trait, " \
             "sum( toFloat(r2.confidence) * toFloat(r3.similarity))as rating " \
             "ORDER BY p.identifier,rating desc")\
-            .format(base_name)
+            .format(base_name.lower())
     records =  graph.cypher.execute(query)
     for r in records:
         person_identifier = r["person_identifier"]
@@ -50,7 +50,7 @@ def get_popularity_dict_for_name(base_name):
     year_query = ("MATCH (n:Name {{base_name:'{0}'}}) -[r:GIVEN_IN] - (y:Year) " \
               "RETURN y.year as year, " \
               "r.count as count")\
-                .format(base_name)
+                .format(base_name.lower())
     popularity_records = graph.cypher.execute(year_query)
 
     for r in popularity_records:
@@ -71,7 +71,7 @@ def get_name_dict_for_trait(trait_word):
     name_dict = {}
     query = "MATCH (n:Name) -[r]- (p:Person) - [r2] - (d:Descriptor) -[r3]- (t:Trait {{word:'{}'}}) " \
             "WHERE length(n.base_name) > 0 " \
-            "return n.base_name as base_name," \
+            "return n.display_name as base_name," \
             "n.origin as origin," \
             "n.gender as gender," \
             "n.meaning as meaning," \
