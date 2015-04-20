@@ -3,6 +3,7 @@ import logging
 import logging.config
 import sys
 from collections import OrderedDict
+from flask import request
 
 from flask import Flask, redirect, url_for, request, render_template, session
 from flask import  jsonify

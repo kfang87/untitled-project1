@@ -15,4 +15,14 @@
 The relationships between names, people, descriptors and traits are stored in a graph database (implemented in Neo4J) to allow easy querying.
 </p>
 <p>It then supplements existing name information about popularity (from the SSA) and origin/etymology to present a richer name browsing experience. Epnumos data is currently accessible via a RESTful API and a web application UI.</p>
+
+<h4>API</h4>
+<p>
+    The API can be accessed easily to retrieve the same data via a RESTful JSON interface. There are two entry points that mirror the two input fields on the main page.
+</p>
+<p>
+    Retrieve information for a name: <a href="{{ url_for('display_name_results',base_name='Robert')}}">http://epnumos.fangstrong.com{{ url_for('display_name_results',base_name='Robert')}}</a>
+    <br/>
+    Retrieve information for a trait: <a href="{{ url_for('display_trait_results',trait_word='mischievous')}}">http://epnumos.fangstrong.com{{ url_for('display_trait_results',trait_word='mischievous')}}</a>
+</p>
 {% endblock %}
