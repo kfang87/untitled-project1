@@ -64,7 +64,7 @@ def show_name_results(base_name):
     name_dict["attributes"] = dbaccess.get_attributes_dict_for_name(base_name)
     name_dict["popularity"] = dbaccess.get_popularity_dict_for_name(base_name)
     update_cookie_list(session,"searched_names",base_name)
-    return render_template('show_name.html',res=name_dict, name=base_name)
+    return render_template('show_name.html',res=name_dict, name=base_name.capitalize())
 
 def get_trait_results(trait_word):
     return dbaccess.get_name_dict_for_trait(trait_word)
