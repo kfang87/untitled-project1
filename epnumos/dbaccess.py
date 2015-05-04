@@ -60,7 +60,7 @@ def get_popularity_dict_for_name(base_name):
 
 def get_attributes_dict_for_name(base_name):
     attributes_dict = {}
-    name_node = graph.find_one("Name", "base_name", base_name)
+    name_node = graph.find_one("Name", "base_name", base_name.lower())
     if name_node:
         attributes_dict["gender"] = name_node.properties["gender"]
         attributes_dict["origin"] = name_node.properties["origin"]
