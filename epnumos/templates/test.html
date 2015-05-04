@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block body %}
+
+
+<script type="text/javascript" src="..\static\jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="..\static\jqcloud2.js"></script>
+<link rel="stylesheet" href="..\static\jqcloud.min.css">
+
+
+<div id="demo">
+</div>
+<script type="text/javascript">
+    var words = [
+  {text: "Lorem", weight: 13},
+  {text: "Ipsum", weight: 10.5},
+  {text: "Dolor", weight: 9.4},
+  {text: "Sit", weight: 8},
+  {text: "Amet", weight: 6.2},
+  {text: "Consectetur", weight: 5},
+  {text: "Adipiscing", weight: 5},
+];
+
+$('#demo').jQCloud(words);
+</script>
+
+{% endblock %}

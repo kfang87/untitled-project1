@@ -3,23 +3,33 @@
 <div class="trait">
     <h2>Names of people who embody "{{trait}}"</h2>
 </div>
+<script type="text/javascript" src="..\..\static\jquery-1.11.2.min.js"></script>
+<script type="text/javascript" src="..\..\static\jqcloud2.js"></script>
+<link rel="stylesheet" href="..\..\static\jqcloud.min.css">
+
+
+<div id="demo">
+</div>
+<script type="text/javascript">
+
+function display_people_for_name(){
+    alert('yeah!')
+}
+
+var words = [];
 {% for k, root in res.iteritems() %}
     {% for k2, name in root.iteritems() %}
-        <div class="trait_name">
-            <h3><a href="{{ url_for('show_name_results', base_name=k2)}}">{{k2}}</a></h3><br/>
-            <b>Origin:</b> {{name["origin"]}} <br />
-            <b>Common Gender Association</b> {{name["gender"]}}<br/>
-            <b>Meaning: </b> {{name["meaning"]}}<br/>
-            <div class="trait_persons">
-                {% for key3, person in name["persons"].iteritems() %}
-                    <div class="trait_person">
-                       <b>{{person["full_name"]}}</b><br/>
-                        Known from: {{person["source"]}}<br/>
-                        Trait embodiment rating: {{person["rating"]}}<br/>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
+        {% for key3, person in name["persons"].iteritems() %}
+            words.push({
+            text:"{{k2}}",
+            weight:{{person["rating"]}},
+            link: '{{url_for('show_name_results',base_name=k2)}}'
+             })
+        {% endfor %}
     {% endfor %}
 {% endfor %}
+
+$('#demo').jQCloud(words);
+</script>
+{% include 'history_bar.html' %}
 {% endblock %}

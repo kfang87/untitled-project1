@@ -80,6 +80,10 @@ def update_cookie_list(session, cookie_key, new_value):
     session[cookie_key] = ",".join(list)
     return session[cookie_key]
 
+@app.route('/ui/test')
+def run_test():
+    return render_template('test.html')
+
 def get_cookie_list(session, cookie_key):
     return session[cookie_key].split(",")
 

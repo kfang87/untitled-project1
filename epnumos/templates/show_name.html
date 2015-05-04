@@ -14,7 +14,7 @@
     <b>Common gender association:</b> {{res["attributes"]["gender"]}}<br/>
     <b>Meaning:</b> {{res["attributes"]["meaning"]}}<br/>
 </div>
-<div id="curve_chart" style="width: 100%; height: 500px"></div>
+<div id="curve_chart" style="width: 100%; height: 300px"></div>
 <h3>People named {{name}}: </h3>
     {% for k, person in res["persons"].iteritems() %}
         <div class="name_person">
@@ -46,12 +46,13 @@
        var options = {
       title: 'Popularity of {{name}} over time',
       curveType: 'function',
-      legend: { position: 'bottom' }
+      legend: { position: 'bottom' },
+      fontSize: '0.5em'
     };
 
     var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
 
     chart.draw(data, options);
 </script>
-
+{% include 'history_bar.html' %}
 {% endblock %}

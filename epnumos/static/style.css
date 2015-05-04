@@ -79,6 +79,9 @@ label.error_msg {
     padding: 5em, 5em, 5em, 5em;
     color: black;
     font-size: 0.9em;
+    border-top: 1px dotted #d3d3d3;
+    margin-top: 20px;
+    padding-top: 20px;
 }
 
 .history_bar a {
@@ -102,4 +105,9 @@ label.error_msg {
 
 .name_person {
     margin: 10px 10px 10px 10px;
+}
+
+#demo {
+    width: 100%;
+    height: 500px;
 }
